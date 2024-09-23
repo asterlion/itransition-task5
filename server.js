@@ -56,6 +56,10 @@ function removeRandomCharacter(str) {
     return str.slice(0, index) + str.slice(index + 1);
 }
 
+app.get('/', (req, res) => {
+    res.send('Hello Task5!');
+});
+
 app.post('/generate', (req, res) => {
     const { region, errors, seed, page } = req.body;
     console.log('Received request:', { region, errors, seed, page });
