@@ -14,7 +14,7 @@ const RandomDataGenerator = () => {
     const loadData = async (pageNum) => {
         try {
             setIsLoading(true);
-            const response = await axios.post('http://astreiko-itransition.online/generate', {
+            const response = await axios.post('https://astreiko-itransition.online/generate', {
                 region,
                 errors,
                 seed,
@@ -31,7 +31,7 @@ const RandomDataGenerator = () => {
 
     const generateRandomSeed = async () => {
         try {
-            const response = await axios.get('http://astreiko-itransition.online/random-seed');
+            const response = await axios.get('https://astreiko-itransition.online/random-seed');
             setSeed(response.data.seed);
         } catch (error) {
             console.error('Error generating random seed:', error);
@@ -93,7 +93,7 @@ const RandomDataGenerator = () => {
                         <option value="">Select Language</option>
                         <option value="en">English</option>
                         <option value="de">Deutsch</option>
-                        <option value="pl">Polski</option>
+                        <option value="by">Russian</option>
                     </select>
                 </div>
 
@@ -125,7 +125,7 @@ const RandomDataGenerator = () => {
                         className="form-control"
                         placeholder="Seed"
                         value={seed}
-                        readOnly
+                        onChange={(e) => setSeed(e.target.value)} // Обновляем состояние при вводе
                     />
                     <button
                         className="btn btn-secondary ml-2"
@@ -135,9 +135,9 @@ const RandomDataGenerator = () => {
                     </button>
                 </div>
 
-                <div className="mx-2">
+                <div >
                     <button
-                        className="btn btn-primary"
+                        className="btn btn-primary generate-btn mx-2"
                         onClick={handleGenerate}
                     >
                         Generate
@@ -146,7 +146,7 @@ const RandomDataGenerator = () => {
 
                 <div>
                     <button
-                        className="btn btn-secondary mx-2"
+                        className="btn btn-secondary export-btn mx-2"
                         onClick={exportToCSV}
                     >
                         Export&nbsp;CSV

@@ -72,21 +72,38 @@ input[type="number"] {
     .input-group {
         width: 100%;
         margin-right: 0;
+        margin-bottom: 20px; /* Отступ снизу между элементами */
     }
 
     .slider {
         width: 100%;
+        margin-bottom: 20px; /* Отступ снизу между элементами */
     }
 
     .button-container {
         margin-left: 0;
         margin-top: 15px;
         width: 100%;
+        margin-bottom: 20px; /* Отступ снизу между элементами */
+    }
+
+    .generate-btn{
+        margin-bottom: 10px; /* Отступ снизу между элементами */
+        width: 100% !important;
+        margin-left: 0 !important; /* Убираем горизонтальные отступы */
+        margin-right: 0 !important; /* Убираем горизонтальные отступы */
+    }
+
+    .export-btn{
+        margin-bottom: 10px; /* Отступ снизу между элементами */
+        width: 100% !important;
+        margin-left: 0 !important; /* Убираем горизонтальные отступы */
+        margin-right: 0 !important; /* Убираем горизонтальные отступы */
     }
 }
 
 .table-container {
-    max-height: 770px; /* Ограничиваем высоту таблицы */
+    max-height: 750px; /* Ограничиваем высоту таблицы */
     overflow-y: auto;  /* Включаем вертикальный скролл */
     margin-top: 20px;
 }
@@ -105,7 +122,17 @@ input[type="number"] {
 
 .table-container th:nth-child(2), /* Столбец с UUID */
 .table-container td:nth-child(2) {
-    width: 40%; /* Больше ширина для UUID */
+    width: 25%; /* Больше ширина для UUID */
+}
+
+.table-container th:nth-child(3), /* Столбец с name */
+.table-container td:nth-child(3) {
+    width: 20%; /* Больше ширина для name */
+}
+
+.table-container th:nth-child(4), /* Столбец с adress */
+.table-container td:nth-child(4) {
+    width: 35%; /* Больше ширина для adress */
 }
 
 /* Остальные стили таблицы */
