@@ -3,6 +3,7 @@ const express = require('express');
 const { faker } = require('@faker-js/faker');
 const { fakerRU, fakerPL, fakerDE, fakerEN } = require('@faker-js/faker');
 const { parsePhoneNumberFromString } = require('libphonenumber-js');
+const SeedRandom = require('random-seed');
 
 const app = express();
 app.use(cors());
@@ -11,9 +12,11 @@ app.use(express.json());
 function generateRandomData(region, errorsPerRecord, seed, pageNumber) {
     try {
         const combinedSeed = Number(seed) + Number(pageNumber); // Комбинируем сид и номер страницы
-        faker.seed(combinedSeed); // Устанавливаем сид
-
+        const errorCount = Number(errorsPerRecord);
+        faker.seed(combinedSeed); // Устанавливаем сид для faker
+        const rng = SeedRandom(combinedSeed); // Создаем генератор случайных чисел с сидом
         const data = [];
+
         for (let i = 0; i < 20; i++) {
             const record = {
                 id: i + 1,
@@ -22,7 +25,10 @@ function generateRandomData(region, errorsPerRecord, seed, pageNumber) {
                 address: generateAddress(region),
                 phone: generatePhoneNumber(region),
             };
-            applyErrors(record, errorsPerRecord);
+            console.log(`Record before applying errors:`, record);
+            console.log(`Error Count: ${errorCount}`);
+            console.log(`Random Generator: ${rng}`);
+            applyErrors(record, errorCount, rng); // Передаем генератор
             data.push(record);
         }
         return data;
@@ -31,7 +37,6 @@ function generateRandomData(region, errorsPerRecord, seed, pageNumber) {
         throw error;
     }
 }
-
 
 // Генерация имени в зависимости от региона
 function generateName(region) {
@@ -43,6 +48,7 @@ function generateName(region) {
         case 'de': // Германия
             return fakerDE.person.fullName();
         case 'en': // Англоязычные страны
+            return fakerEN.person.fullName();
         default:   // По умолчанию — английская локализация
             return fakerEN.person.fullName();
     }
@@ -102,8 +108,6 @@ function generatePolandAddress() {
     return faker.helpers.arrayElement(formats)();
 }
 
-
-
 function generatePhoneNumber(region) {
     let phoneNumber;
 
@@ -128,23 +132,68 @@ function generatePhoneNumber(region) {
     return phoneNumber ? phoneNumber.formatInternational() : faker.phone.number();
 }
 
-function applyErrors(record, errorsPerRecord) {
-    for (let i = 0; i < errorsPerRecord; i++) {
-        const field = Math.floor(Math.random() * 3);
-        if (field === 0) {
-            record.name = removeRandomCharacter(record.name);
-        } else if (field === 1) {
-            record.address = removeRandomCharacter(record.address);
-        } else if (field === 2) {
-            record.phone = removeRandomCharacter(record.phone);
-        }
+// Обновленная функция applyErrors
+function applyErrors(record, errorCount) {
+    console.log(`Applying ${errorCount} errors to record:`, record);
+
+    if (errorCount === 0) {
+        return; // Если ошибок нет, просто возвращаем запись
     }
+
+    const fields = ['name', 'address', 'phone'];
+
+    for (let i = 0; i < Math.floor(errorCount); i++) {
+        const fieldIndex = Math.floor(Math.random() * fields.length);
+        const field = fields[fieldIndex];
+
+        console.log(`Altering field '${field}' in record`);
+
+        const errorType = Math.floor(Math.random() * 3);
+        switch (errorType) {
+            case 0:
+                record[field] = removeRandomCharacter(record[field]);
+                break;
+            case 1:
+                record[field] = addRandomCharacter(record[field]);
+                break;
+            case 2:
+                record[field] = swapAdjacentCharacters(record[field]);
+                break;
+        }
+        console.log(`New ${field}: ${record[field]}`);
+    }
+
+    // Обработка вероятностной ошибки
+    if (Math.random() < (errorCount % 1)) {
+        const fieldIndex = Math.floor(Math.random() * fields.length);
+        const field = fields[fieldIndex];
+        record[field] = removeRandomCharacter(record[field]);
+        console.log(`Probabilistic error added to ${field}: ${record[field]}`);
+    }
+
+    console.log(`Final record after errors:`, record);
 }
 
+// Обновленные функции для обработки ошибок
 function removeRandomCharacter(str) {
     if (str.length === 0) return str;
     const index = Math.floor(Math.random() * str.length);
     return str.slice(0, index) + str.slice(index + 1);
+}
+
+function addRandomCharacter(str) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const randomChar = chars[Math.floor(Math.random() * chars.length)];
+    const index = Math.floor(Math.random() * (str.length + 1));
+    return str.slice(0, index) + randomChar + str.slice(index);
+}
+
+function swapAdjacentCharacters(str) {
+    if (str.length < 2) return str;
+    const index = Math.floor(Math.random() * (str.length - 1));
+    const arr = str.split('');
+    [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+    return arr.join('');
 }
 
 app.get('/', (req, res) => {
@@ -157,7 +206,7 @@ app.post('/generate', (req, res) => {
 
     try {
         // Комбинируем пользовательский seed с номером страницы
-        const combinedSeed = seed + page; // Простая сумма
+        const combinedSeed = parseInt(seed, 10) + page; // Корректное преобразование
         const data = generateRandomData(region, errors, combinedSeed, page);
         res.json(data);
     } catch (error) {

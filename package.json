@@ -16,6 +16,7 @@
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "libphonenumber-js": "^1.11.9",
+    "random-seed": "^0.3.0",
     "seedrandom": "^3.0.5"
   }
 }
